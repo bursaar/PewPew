@@ -59,6 +59,32 @@ public class InputHandler : MonoBehaviour {
 				Debug.Log("Moving right.");
 			scancode = InputCommands.MOVE_RIGHT;
 		}
+		
+		if (Input.GetKey(KeyCode.LeftControl) ||
+			Input.GetKey(KeyCode.RightControl))
+		{
+			if (debugMode)
+				Debug.Log ("Shhh! Sneaking...");
+			scancode = InputCommands.MODE_SNEAK;
+		}
+		
+		if (Input.GetKey(KeyCode.LeftShift) ||
+			Input.GetKey (KeyCode.RightShift))
+		{
+			if(debugMode)
+				Debug.Log("Running!");
+			scancode = InputCommands.MODE_RUN;
+		}
+		
+		if (Input.GetKeyUp(KeyCode.LeftShift) ||
+		    Input.GetKeyUp (KeyCode.RightShift) ||
+		    Input.GetKeyUp (KeyCode.LeftControl) ||
+		    Input.GetKeyUp (KeyCode.RightControl))
+		{
+			if(debugMode)
+				Debug.Log("Walking.");
+			scancode = InputCommands.MODE_WALK;
+		}
 			
 			
 		// Gives us a readout on the inspector

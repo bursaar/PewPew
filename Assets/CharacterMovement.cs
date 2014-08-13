@@ -3,16 +3,22 @@ using System.Collections;
 
 public class CharacterMovement : MonoBehaviour {
 
-	public float maxSpeed = 10f;
+	public float normalSpeed = 10f;
+	public float runningSpeed = 15f;
+	public float walkingSpeed = 5f;
+	
+	float currentSpeed;
 	
 	public float jumpHeight = 800f;
 	
 	bool isGrounded = true;
+	bool againstWall = false;
 
 	bool facingRight = true;
 	
 	float groundRadius = 0.1f;
 	public LayerMask whatIsGround;
+	public LayerMask whatIsWall;
 	
 	InputHandler inputHandler;
 	
@@ -21,6 +27,7 @@ public class CharacterMovement : MonoBehaviour {
 	void Start () {
 	
 	inputHandler = FindObjectOfType<InputHandler>();
+	currentSpeed = normalSpeed;
 	
 	}
 	
@@ -28,18 +35,17 @@ public class CharacterMovement : MonoBehaviour {
 	
 		isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundRadius, whatIsGround);
 		
-		
+		againstWall = Physics2D.OverlapCircle(groundCheck.position, groundRadius, whatIsWall);
 		
 	
-		// float move = Input.GetAxis("Horizontal");
+		float move = Input.GetAxis("Horizontal");
 		
-		// rigidbody2D.velocity = new Vector2(move * maxSpeed, rigidbody2D.velocity.y);
+		rigidbody2D.velocity = new Vector2(move * currentSpeed, rigidbody2D.velocity.y);
 	
-		if(inputHandler.GetInput(InputHandler.InputCommands.MOVE_RIGHT) > 0 && !facingRight)
+		if(inputHandler.GetInput(InputHandler.InputCommands.MOVE_RIGHT) && !facingRight)
 			Flip();
-		else if (inputHandler.GetInput(InputHandler.InputCommands.MOVE_LEFT) < 0 && facingRight)
-			Flip ();
-		
+		else if (inputHandler.GetInput(InputHandler.InputCommands.MOVE_LEFT) && facingRight)
+			Flip ();		
 	}
 	
 	void Update()
@@ -50,11 +56,24 @@ public class CharacterMovement : MonoBehaviour {
 			rigidbody2D.AddForce(new Vector2(0, jumpHeight));
 		}
 		
-		if (inputHandler.GetInput(InputHandler.InputCommands.MOVE_RIGHT))
-			rigidbody2D.AddForce(new Vector2(CharacterMovement * maxSpeed, 0));
+		if(againstWall)
+			Debug.Log ("Splat! Against a wall.");
+			
+		if(inputHandler.GetInput(InputHandler.InputCommands.MODE_RUN))
+		{
+			currentSpeed = runningSpeed;
+		}
 		
-		if (inputHandler.GetInput(InputHandler.InputCommands.MOVE_LEFT))
-			rigidbody2D.AddForce(new Vector2(CharacterMovement * maxSpeed * -1, 0));
+		if(inputHandler.GetInput(InputHandler.InputCommands.MODE_WALK))
+		{
+			currentSpeed = normalSpeed;
+		}
+		
+		if (inputHandler.GetInput(InputHandler.InputCommands.MODE_SNEAK))
+		{
+			currentSpeed = walkingSpeed;
+		}
+		
 	}
 	
 	void Flip()
