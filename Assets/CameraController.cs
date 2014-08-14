@@ -31,7 +31,7 @@ public class CameraController : MonoBehaviour {
 	
 	Directions PlayerGoingOffScreen()
 	{
-		Vector2 flattenedPlayerPosition = Vector3toVector2(mainCamera.WorldToViewportPoint(currentPlayerPos.position));
+		Vector2 flattenedPlayerPosition = FlattenVector(mainCamera.WorldToViewportPoint(currentPlayerPos.position));
 		
 		if (flattenedPlayerPosition.x > 1 - horizontalActiveBorder)
 		{
@@ -88,7 +88,12 @@ public class CameraController : MonoBehaviour {
 		}
 	}
 	
-	Vector2 Vector3toVector2(Vector3 pInputVector)
+	/// <summary>
+	/// 3D to 2D – discards the Z co-ordinate of a 3D vector
+	/// </summary>
+	/// <returns>The flattened Vector2 data with the same x and y as the input vector.</returns>
+	/// <param name="pInputVector">The 3D vector to be flattened.</param>
+	Vector2 FlattenVector(Vector3 pInputVector)
 	{
 		Vector2 outputVector; 
 		
