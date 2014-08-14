@@ -83,4 +83,18 @@ public class CharacterMovement : MonoBehaviour {
 		theScale.x *= -1;
 		transform.localScale = theScale;
 	}
+	
+	public bool GetFacingRight()
+	{
+		if (facingRight)
+			Debug.Log("Player is facing right.");
+		if (!facingRight)
+			Debug.Log("Player is facing left.");
+		return facingRight;
+	}
+	
+	public void SetFacing(bool pIsFacingRight)
+	{
+		facingRight = pIsFacingRight;
+	}
 }

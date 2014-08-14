@@ -9,6 +9,11 @@ public class CameraController : MonoBehaviour {
 	public float verticalStep = 6.5f;
 	public float horizontalStep = 11.6f;
 	
+	public int numberOfFramesToShimmy = 1000;
+	int shimmyFrameCount;
+	
+	float stepSize = 0.3f;
+	
 	enum Directions {CAM_STAY, CAM_UP, CAM_DOWN, CAM_LEFT, CAM_RIGHT};
 	
 	Camera mainCamera;
@@ -22,11 +27,14 @@ public class CameraController : MonoBehaviour {
 		mainCamera = Camera.main;
 		currentPlayerPos = FindObjectOfType<Player>().GetComponent<Transform>();
 		playerController = FindObjectOfType<CharacterMovement>();
+		ResetFramesToShimmy();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		MoveCamera(PlayerGoingOffScreen());
+		
+		// stepSize = 0.01f;
+		ShimmyCameraToNewLocation(PlayerGoingOffScreen());
 	}
 	
 	Directions PlayerGoingOffScreen()
@@ -57,35 +65,97 @@ public class CameraController : MonoBehaviour {
 		
 	}
 	
-	void MoveCamera(Directions pMovement)
+	void SnapCameraToNewLocation(Directions pMovement)
 	{
 		Vector3 currentPos = mainCamera.transform.position;
 	
 		switch(pMovement)
 		{
 		case Directions.CAM_STAY:
-		break;
+			break;
 		case Directions.CAM_RIGHT:
-			currentPos.x += horizontalStep;
-			mainCamera.transform.position = currentPos;
-			Debug.Log("Moving the camera to the right.");
-		break;
+			if(playerController.GetFacingRight())
+			{
+				currentPos.x += horizontalStep;
+				mainCamera.transform.position = currentPos;
+				Debug.Log("Moving the camera to the right.");
+			}
+			break;
 		case Directions.CAM_LEFT:
-			currentPos.x -= horizontalStep;
-			mainCamera.transform.position = currentPos;
-			Debug.Log("Moving the camera to the left.");
-		break;
+			if (!playerController.GetFacingRight())
+			{
+				currentPos.x -= horizontalStep;
+				mainCamera.transform.position = currentPos;
+				Debug.Log("Moving the camera to the left.");
+			}
+			break;
 		case Directions.CAM_UP:
 			currentPos.y -= verticalStep;
 			mainCamera.transform.position = currentPos;
 			Debug.Log("Moving the camera up.");
-		break;
+			break;
 		case Directions.CAM_DOWN:
 			currentPos.y += verticalStep;
 			mainCamera.transform.position = currentPos;
 			Debug.Log("Moving the camera down.");
-		break;
+			break;
 		}
+	}
+	
+	void ShimmyCameraToNewLocation(Directions pMovement)
+	{
+		
+		Vector3 currentPos = mainCamera.transform.position;
+		Vector2 flattenedPlayerPosition = FlattenVector(mainCamera.WorldToViewportPoint(currentPlayerPos.position));
+		
+		switch (pMovement)
+		{
+		case Directions.CAM_RIGHT:
+			Debug.Log ("Flattened player position is " + flattenedPlayerPosition.x);
+			if(flattenedPlayerPosition.x > horizontalActiveBorder && shimmyFrameCount > 0)
+			{
+				Debug.Log ("Shimmying right.");
+				currentPos.x += stepSize;
+				mainCamera.transform.position = currentPos;
+				flattenedPlayerPosition = FlattenVector(mainCamera.WorldToViewportPoint(currentPlayerPos.position));
+				shimmyFrameCount--;
+			}
+			break;
+		case Directions.CAM_LEFT:
+			if(flattenedPlayerPosition.x < 1 - horizontalActiveBorder && shimmyFrameCount > 0)
+			{
+				currentPos.x -= stepSize;
+				mainCamera.transform.position = currentPos;
+				flattenedPlayerPosition = FlattenVector(mainCamera.WorldToViewportPoint(currentPlayerPos.position));
+				shimmyFrameCount--;
+			}
+			break;
+		case Directions.CAM_DOWN:
+			if(flattenedPlayerPosition.y < verticalActiveBorder && shimmyFrameCount > 0)
+			{
+				currentPos.y += stepSize;
+				mainCamera.transform.position = currentPos;
+				flattenedPlayerPosition = FlattenVector(mainCamera.WorldToViewportPoint(currentPlayerPos.position));
+				shimmyFrameCount--;
+			}
+			break;
+		case Directions.CAM_UP:
+			if(flattenedPlayerPosition.y > 1 - verticalActiveBorder && shimmyFrameCount > 0)
+			{
+				currentPos.y -= stepSize;
+				mainCamera.transform.position = currentPos;
+				flattenedPlayerPosition = FlattenVector(mainCamera.WorldToViewportPoint(currentPlayerPos.position));
+				shimmyFrameCount--;
+			}
+			break;
+		}
+		
+		if (shimmyFrameCount == 0)
+		{
+			pMovement = Directions.CAM_STAY;
+			ResetFramesToShimmy();
+		}
+		
 	}
 	
 	/// <summary>
@@ -101,5 +171,10 @@ public class CameraController : MonoBehaviour {
 		outputVector.y = pInputVector.y;
 		
 		return outputVector;
+	}
+	
+	void ResetFramesToShimmy()
+	{
+		shimmyFrameCount = numberOfFramesToShimmy;
 	}
 }
