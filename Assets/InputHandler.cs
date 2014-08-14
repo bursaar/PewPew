@@ -61,7 +61,8 @@ public class InputHandler : MonoBehaviour {
 		}
 		
 		if (Input.GetKey(KeyCode.LeftControl) ||
-			Input.GetKey(KeyCode.RightControl))
+			Input.GetKey(KeyCode.RightControl) ||
+			Input.GetKey (KeyCode.DownArrow))
 		{
 			if (debugMode)
 				Debug.Log ("Shhh! Sneaking...");
@@ -79,7 +80,8 @@ public class InputHandler : MonoBehaviour {
 		if (Input.GetKeyUp(KeyCode.LeftShift) ||
 		    Input.GetKeyUp (KeyCode.RightShift) ||
 		    Input.GetKeyUp (KeyCode.LeftControl) ||
-		    Input.GetKeyUp (KeyCode.RightControl))
+		    Input.GetKeyUp (KeyCode.RightControl) ||
+		    Input.GetKeyUp (KeyCode.DownArrow))
 		{
 			if(debugMode)
 				Debug.Log("Walking.");
