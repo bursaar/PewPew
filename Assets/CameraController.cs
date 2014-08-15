@@ -12,9 +12,16 @@ public class CameraController : MonoBehaviour {
 	public int numberOfFramesToShimmy = 1000;
 	int shimmyFrameCount;
 	
+	public bool shimmyActive = false;
+	public Directions directionToShimmy = Directions.CAM_STAY;
+	
+	public float deadBand = 0.1f;
+	
 	float stepSize = 0.3f;
 	
-	enum Directions {CAM_STAY, CAM_UP, CAM_DOWN, CAM_LEFT, CAM_RIGHT};
+	public enum Directions {CAM_STAY, CAM_UP, CAM_DOWN, CAM_LEFT, CAM_RIGHT};
+	public enum CameraMode {CAM_MODE_SNAP, CAM_MODE_SHIMMY, CAM_MODE_TRACK_LOOSE, CAM_MODE_TRACK_TIGHT};
+	public CameraMode cameraSetting = CameraMode.CAM_MODE_SHIMMY;
 	
 	Camera mainCamera;
 
@@ -32,9 +39,7 @@ public class CameraController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		
-		// stepSize = 0.01f;
-		ShimmyCameraToNewLocation(PlayerGoingOffScreen());
+		ControlCameraMovement(cameraSetting);
 	}
 	
 	Directions PlayerGoingOffScreen()
@@ -43,21 +48,25 @@ public class CameraController : MonoBehaviour {
 		
 		if (flattenedPlayerPosition.x > 1 - horizontalActiveBorder)
 		{
+			shimmyActive = true;
 			return Directions.CAM_RIGHT;
 		}
 		
 		if (flattenedPlayerPosition.x < horizontalActiveBorder)
 		{
+			shimmyActive = true;
 			return Directions.CAM_LEFT;
 		}
 		
 		if (flattenedPlayerPosition.y < verticalActiveBorder)
 		{
+			shimmyActive = true;
 			return Directions.CAM_UP;
 		}
 		
 		if (flattenedPlayerPosition.y > 1 - verticalActiveBorder)
 		{
+			shimmyActive = true;
 			return Directions.CAM_DOWN;
 		}
 		
@@ -74,7 +83,7 @@ public class CameraController : MonoBehaviour {
 		case Directions.CAM_STAY:
 			break;
 		case Directions.CAM_RIGHT:
-			if(playerController.GetFacingRight())
+			if(!playerController.GetFacingRight())
 			{
 				currentPos.x += horizontalStep;
 				mainCamera.transform.position = currentPos;
@@ -82,7 +91,7 @@ public class CameraController : MonoBehaviour {
 			}
 			break;
 		case Directions.CAM_LEFT:
-			if (!playerController.GetFacingRight())
+			if (playerController.GetFacingRight())
 			{
 				currentPos.x -= horizontalStep;
 				mainCamera.transform.position = currentPos;
@@ -104,31 +113,31 @@ public class CameraController : MonoBehaviour {
 	
 	void ShimmyCameraToNewLocation(Directions pMovement)
 	{
-		
+		// Find the camera's current position
 		Vector3 currentPos = mainCamera.transform.position;
+		
+		// Find the player's current position in the plane
 		Vector2 flattenedPlayerPosition = FlattenVector(mainCamera.WorldToViewportPoint(currentPlayerPos.position));
 		
+		
+		// Perform the right translation, depending on the movement passed to the method
 		switch (pMovement)
 		{
 		case Directions.CAM_RIGHT:
-			Debug.Log ("Flattened player position is " + flattenedPlayerPosition.x);
-			if(flattenedPlayerPosition.x > horizontalActiveBorder && shimmyFrameCount > 0)
-			{
-				Debug.Log ("Shimmying right.");
-				currentPos.x += stepSize;
-				mainCamera.transform.position = currentPos;
-				flattenedPlayerPosition = FlattenVector(mainCamera.WorldToViewportPoint(currentPlayerPos.position));
-				shimmyFrameCount--;
-			}
+			currentPos.x += stepSize;
+			mainCamera.transform.position = currentPos;
+			flattenedPlayerPosition = FlattenVector(mainCamera.WorldToViewportPoint(currentPlayerPos.position));
+			
+			if (flattenedPlayerPosition.x < horizontalActiveBorder + deadBand)
+					shimmyActive = false;
 			break;
 		case Directions.CAM_LEFT:
-			if(flattenedPlayerPosition.x < 1 - horizontalActiveBorder && shimmyFrameCount > 0)
-			{
-				currentPos.x -= stepSize;
-				mainCamera.transform.position = currentPos;
-				flattenedPlayerPosition = FlattenVector(mainCamera.WorldToViewportPoint(currentPlayerPos.position));
-				shimmyFrameCount--;
-			}
+			currentPos.x -= stepSize;
+			mainCamera.transform.position = currentPos;
+			flattenedPlayerPosition = FlattenVector(mainCamera.WorldToViewportPoint(currentPlayerPos.position));
+
+			if (flattenedPlayerPosition.x > (1 - horizontalActiveBorder) - deadBand)
+					shimmyActive = false;
 			break;
 		case Directions.CAM_DOWN:
 			if(flattenedPlayerPosition.y < verticalActiveBorder && shimmyFrameCount > 0)
@@ -177,4 +186,54 @@ public class CameraController : MonoBehaviour {
 	{
 		shimmyFrameCount = numberOfFramesToShimmy;
 	}
+	
+	void ControlCameraMovement(CameraMode pCamMode)
+	{
+		switch(pCamMode)
+		{
+		case CameraMode.CAM_MODE_SHIMMY:
+				if (!shimmyActive)
+					directionToShimmy = PlayerGoingOffScreen();
+				if (shimmyActive)
+					ShimmyCameraToNewLocation(directionToShimmy);
+		break;
+		
+		case CameraMode.CAM_MODE_SNAP:
+				shimmyActive = false;
+				SnapCameraToNewLocation(PlayerGoingOffScreen());
+		break;
+		
+		case CameraMode.CAM_MODE_TRACK_LOOSE:
+				shimmyActive = false;
+				TrackPlayerMovement(PlayerGoingOffScreen());
+		break;
+		
+		case CameraMode.CAM_MODE_TRACK_TIGHT:
+				shimmyActive = false;
+				TrackPlayerMovement();
+		
+		
+		break;
+		}
+	}
+	
+	void TrackPlayerMovement(Directions pDirectionToFace)
+	{
+	
+	}
+	
+	void TrackPlayerMovement()
+	{
+		// Find the camera's current position
+		Vector3 currentPos = mainCamera.transform.position;
+		
+		// Find the player's current position in the plane
+		Vector2 flattenedPlayerPosition = FlattenVector(currentPlayerPos.position);
+		
+		currentPos.x = flattenedPlayerPosition.x;
+		currentPos.y = flattenedPlayerPosition.y;
+		
+		mainCamera.transform.position = currentPos;
+	}
+	
 }

@@ -41,10 +41,13 @@ public class CharacterMovement : MonoBehaviour {
 		float move = Input.GetAxis("Horizontal");
 		
 		rigidbody2D.velocity = new Vector2(move * currentSpeed, rigidbody2D.velocity.y);
-	
-		if(inputHandler.GetInput(InputHandler.InputCommands.MOVE_RIGHT) && !facingRight)
+		
+		// Debug.Log ("Move is: " + move);
+		
+		if(!facingRight && move < 0)
 			Flip();
-		else if (inputHandler.GetInput(InputHandler.InputCommands.MOVE_LEFT) && facingRight)
+		else 
+		if (facingRight && move > 0)
 			Flip ();		
 	}
 	
