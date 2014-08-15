@@ -9,9 +9,6 @@ public class CameraController : MonoBehaviour {
 	public float verticalStep = 6.5f;
 	public float horizontalStep = 11.6f;
 	
-	public int numberOfFramesToShimmy = 1000;
-	int shimmyFrameCount;
-	
 	public bool shimmyActive = false;
 	public Directions directionToShimmy = Directions.CAM_STAY;
 	
@@ -34,7 +31,6 @@ public class CameraController : MonoBehaviour {
 		mainCamera = Camera.main;
 		currentPlayerPos = FindObjectOfType<Player>().GetComponent<Transform>();
 		playerController = FindObjectOfType<CharacterMovement>();
-		ResetFramesToShimmy();
 	}
 	
 	// Update is called once per frame
@@ -140,29 +136,21 @@ public class CameraController : MonoBehaviour {
 					shimmyActive = false;
 			break;
 		case Directions.CAM_DOWN:
-			if(flattenedPlayerPosition.y < verticalActiveBorder && shimmyFrameCount > 0)
+			if(flattenedPlayerPosition.y < verticalActiveBorder)
 			{
 				currentPos.y += stepSize;
 				mainCamera.transform.position = currentPos;
 				flattenedPlayerPosition = FlattenVector(mainCamera.WorldToViewportPoint(currentPlayerPos.position));
-				shimmyFrameCount--;
 			}
 			break;
 		case Directions.CAM_UP:
-			if(flattenedPlayerPosition.y > 1 - verticalActiveBorder && shimmyFrameCount > 0)
+			if(flattenedPlayerPosition.y > 1 - verticalActiveBorder)
 			{
 				currentPos.y -= stepSize;
 				mainCamera.transform.position = currentPos;
 				flattenedPlayerPosition = FlattenVector(mainCamera.WorldToViewportPoint(currentPlayerPos.position));
-				shimmyFrameCount--;
 			}
 			break;
-		}
-		
-		if (shimmyFrameCount == 0)
-		{
-			pMovement = Directions.CAM_STAY;
-			ResetFramesToShimmy();
 		}
 		
 	}
@@ -181,11 +169,7 @@ public class CameraController : MonoBehaviour {
 		
 		return outputVector;
 	}
-	
-	void ResetFramesToShimmy()
-	{
-		shimmyFrameCount = numberOfFramesToShimmy;
-	}
+
 	
 	void ControlCameraMovement(CameraMode pCamMode)
 	{
