@@ -203,13 +203,24 @@ public class CameraController : MonoBehaviour {
 	
 	void TrackPlayerMovement(Directions pDirectionToFace)
 	{
-	
+		// Find the camera's current position
+		Vector3 currentPos = mainCamera.transform.position;
+		Debug.Log ("The camera's current position is: " + currentPos.x);
+		
+		// Find the player's current position in the plane
+		Vector2 flattenedPlayerPosition = FlattenVector(currentPlayerPos.position);
+		Debug.Log ("The player's current position in the world is: " + flattenedPlayerPosition.x);
+		
+		// Find the player's current position in the frame
+		Vector2 flattenedPlayerPositionInFrame = FlattenVector(mainCamera.WorldToViewportPoint(currentPlayerPos.position));
+		Debug.Log ("The player's current position in the frame is: " + flattenedPlayerPositionInFrame.x);
 	}
 	
 	void TrackPlayerMovement()
 	{
 		// Find the camera's current position
 		Vector3 currentPos = mainCamera.transform.position;
+		
 		
 		// Find the player's current position in the plane
 		Vector2 flattenedPlayerPosition = FlattenVector(currentPlayerPos.position);
