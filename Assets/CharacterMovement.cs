@@ -23,11 +23,19 @@ public class CharacterMovement : MonoBehaviour {
 	InputHandler inputHandler;
 	
 	public Transform groundCheck;
+	
+	public int runningAudioTimer = 60;
+	public int sneakingAudioTimer = 80;
+	public AudioClip[] jump;
+	public AudioClip[] run;
+	public AudioClip[] sneak;
 
 	void Start () {
 	
 	inputHandler = FindObjectOfType<InputHandler>();
 	currentSpeed = normalSpeed;
+	
+	
 	
 	}
 	
@@ -56,6 +64,7 @@ public class CharacterMovement : MonoBehaviour {
 		// This should really be handled by a proper input handler.
 		if (isGrounded && inputHandler.GetInput(InputHandler.InputCommands.MOVE_JUMP))
 		{
+			audio.PlayOneShot(NextClipJump());
 			rigidbody2D.AddForce(new Vector2(0, jumpHeight));
 		}
 		
@@ -64,6 +73,7 @@ public class CharacterMovement : MonoBehaviour {
 			
 		if(inputHandler.GetInput(InputHandler.InputCommands.MODE_RUN))
 		{
+			audio.PlayOneShot(NextClipRun());
 			currentSpeed = runningSpeed;
 		}
 		
@@ -74,6 +84,7 @@ public class CharacterMovement : MonoBehaviour {
 		
 		if (inputHandler.GetInput(InputHandler.InputCommands.MODE_SNEAK))
 		{
+			audio.PlayOneShot(NextClipSneak());
 			currentSpeed = walkingSpeed;
 		}
 		
@@ -99,5 +110,38 @@ public class CharacterMovement : MonoBehaviour {
 	public void SetFacing(bool pIsFacingRight)
 	{
 		facingRight = pIsFacingRight;
+	}
+	
+	AudioClip NextClipJump()
+	{
+		return jump[Random.Range(0,2)];
+	}
+	
+	AudioClip NextClipRun()
+	{
+		if (runningAudioTimer <= 0)
+		{
+			runningAudioTimer = 60;
+			return run[Random.Range(0,3)];
+		} else {
+			runningAudioTimer--;
+		}
+		
+		return null;
+	}
+	
+	AudioClip NextClipSneak()
+	{
+		
+		
+		if (sneakingAudioTimer <= 0)
+		{
+			sneakingAudioTimer = 90;
+			return sneak[Random.Range(0,5)];
+		} else {
+			sneakingAudioTimer--;
+		}
+		
+		return null;
 	}
 }

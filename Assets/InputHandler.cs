@@ -14,7 +14,8 @@ public class InputHandler : MonoBehaviour {
 						MOVE_CROUCH, 
 						MODE_WALK, 
 						MODE_RUN, 
-						MODE_SNEAK}
+						MODE_SNEAK,
+						ACTION_FIRE}
 
 	public InputCommands currentInput;
 
@@ -25,6 +26,9 @@ public class InputHandler : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		
+		if (Input.GetKey(KeyCode.Escape))
+			Application.Quit();
 	
 	}
 	
@@ -86,6 +90,13 @@ public class InputHandler : MonoBehaviour {
 			if(debugMode)
 				Debug.Log("Walking.");
 			scancode = InputCommands.MODE_WALK;
+		}
+		
+		if (Input.GetMouseButtonDown(0))
+		{
+			if(debugMode)
+				Debug.Log ("Firing.");
+			scancode = InputCommands.ACTION_FIRE;
 		}
 			
 			
