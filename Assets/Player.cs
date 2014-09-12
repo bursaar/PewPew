@@ -53,7 +53,7 @@ public class Player : MonoBehaviour {
 	
 	AudioClip NextClipFiring()
 	{
-		return firing[Random.Range(0,15)];
+		return firing[Random.Range(0,14)];
 	}
 	
 }

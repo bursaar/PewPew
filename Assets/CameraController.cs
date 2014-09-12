@@ -136,15 +136,15 @@ public class CameraController : MonoBehaviour {
 					shimmyActive = false;
 			break;
 		case Directions.CAM_DOWN:
-			if(flattenedPlayerPosition.y < verticalActiveBorder)
+			if(flattenedPlayerPosition.y > 1 - verticalActiveBorder)
 			{
-				currentPos.y += stepSize;
+				currentPos.y = stepSize;
 				mainCamera.transform.position = currentPos;
 				flattenedPlayerPosition = FlattenVector(mainCamera.WorldToViewportPoint(currentPlayerPos.position));
 			}
 			break;
 		case Directions.CAM_UP:
-			if(flattenedPlayerPosition.y > 1 - verticalActiveBorder)
+			if(flattenedPlayerPosition.y < verticalActiveBorder)
 			{
 				currentPos.y -= stepSize;
 				mainCamera.transform.position = currentPos;
