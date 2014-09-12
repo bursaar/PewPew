@@ -11,8 +11,7 @@ public class Baddie : MonoBehaviour {
 	public enum Directions {DIRECTION_UP, 
 						DIRECTION_FORWARD, 
 						DIRECTION_DOWN, 
-						DIRECTION_BACK, 
-						DIRECTION_FORWARD_AND_DOWN};
+						DIRECTION_BACK};
 	public Directions directionsToCheck = Directions.DIRECTION_FORWARD;
 	public bool flipOnDetection = true;
 	public enum BaddieMode {MODE_PATROL};
@@ -20,6 +19,11 @@ public class Baddie : MonoBehaviour {
 	public int initialDetectionFilter = 3;
 	int detectionFilter;
 	Ray ray;
+	
+	public bool collideInFront = false;
+	public bool collideBehind = false;
+	public bool collideUnderneath = false;
+	public bool collideAbove = false;
 	
 	public LayerMask layersToCollideWith;
 	
@@ -34,6 +38,16 @@ public class Baddie : MonoBehaviour {
 			  
 	}
 	
+	void CheckAllCollisions()
+	{
+		collideInFront = CheckForCollision(Directions.DIRECTION_FORWARD);
+		collideAbove = CheckForCollision(Directions.DIRECTION_UP);
+		collideUnderneath = CheckForCollision(Directions.DIRECTION_DOWN);
+		collideBehind = CheckForCollision(Directions.DIRECTION_BACK);
+	}
+	
+	
+	
 	void Start()
 	{
 		detectionFilter = initialDetectionFilter;
@@ -42,6 +56,7 @@ public class Baddie : MonoBehaviour {
 	void FixedUpdate()
 	{
 		Cleanup();
+		CheckAllCollisions();
 		switch(myMode)
 		{
 			case BaddieMode.MODE_PATROL:
@@ -97,10 +112,6 @@ public class Baddie : MonoBehaviour {
 		case Directions.DIRECTION_BACK:
 		direction2D = -Vector2.right;
 		break;
-		
-		case Directions.DIRECTION_FORWARD_AND_DOWN:
-		direction2D = Vector2.right - Vector2.up;	// Combine the right vector (1, 0) with the down vector (0, -1) with addition (1, -1)
-		break;
 		}
 		
 		// Establish a scale for the raycasting the adjusts with velocity.
@@ -112,8 +123,7 @@ public class Baddie : MonoBehaviour {
 		
 		// Reassign IF the direction is forward or backwards (or forwards & down) instead.
 		if (directionToCheck == Directions.DIRECTION_FORWARD
-		|| directionToCheck == Directions.DIRECTION_BACK
-		|| directionToCheck == Directions.DIRECTION_FORWARD_AND_DOWN)
+		|| directionToCheck == Directions.DIRECTION_BACK)
 		{// the variable     =   the raycast of this position, the direction we're looking in, at a distance of the speed by the sensitivity, only checking the layers in the list.
 			hitInformation2D = Physics2D.Raycast(transform.position, direction2D, horizontalDistance * sensitivity, layersToCollideWith);
 		}		
@@ -167,13 +177,13 @@ public class Baddie : MonoBehaviour {
 		
 		if (flipOnDetection)
 		{
-			if (CheckForCollision(directionsToCheck))
+			if (collideInFront)
 			{
 				Flip();
 				baddieFacingRight = !baddieFacingRight;
 			}
 		} else {
-			if (!CheckForCollision(directionsToCheck))
+			if (!collideInFront && !collideUnderneath)
 			{
 				Flip();
 				baddieFacingRight = !baddieFacingRight;
