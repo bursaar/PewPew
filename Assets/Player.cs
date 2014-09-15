@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Player : MonoBehaviour {
+public class Player : CharacterMovement {
 
 	public Rigidbody2D bullet;
 	CharacterMovement thisCharacter;
