@@ -1,14 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Player : CharacterMovement {
+public class Player : Character {
 
 	public Rigidbody2D bullet;
 	CharacterMovement thisCharacter;
 	InputHandler thisInput;
 	public Transform gun;
 	public Transform bulletParent;
-	public AudioClip[] firing;
 	
 	public float bulletSpeed;
 

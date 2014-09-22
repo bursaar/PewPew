@@ -1,76 +1,40 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Baddie : MonoBehaviour {
+public class Baddie : Character {
 
-	public string baddieName;
 	public float verticalThreshold;
+	
 	public float speed = 1.0f;
 	public float sensitivity = 3.0f;
-	public bool baddieFacingRight = true;
-	public enum Directions {DIRECTION_UP, 
-						DIRECTION_FORWARD, 
-						DIRECTION_DOWN, 
-						DIRECTION_BACK};
-	public Directions directionsToCheck = Directions.DIRECTION_FORWARD;
-	public bool flipOnDetection = true;
-	public enum BaddieMode {MODE_PATROL};
-	public BaddieMode myMode;
-	public int initialDetectionFilter = 3;
-	int detectionFilter;
-	Ray ray;
-	
-	public bool collideInFront = false;
-	public bool collideBehind = false;
-	public bool collideUnderneath = false;
-	public bool collideAbove = false;
-	
-	public LayerMask layersToCollideWith;
 	
 	void OnCollisionEnter2D (Collision2D other)
 	{
 		
 		if(other.gameObject.tag=="Projectile")
 		{
-			Debug.Log ("...a bullet! " + baddieName + " will now terminate.");
+			Debug.Log ("...a bullet! " + myName + " will now terminate.");
 			StopProjectile(other);
 		}
 			  
 	}
 	
-	void CheckAllCollisions()
-	{
-		collideInFront = CheckForCollision(Directions.DIRECTION_FORWARD);
-		collideAbove = CheckForCollision(Directions.DIRECTION_UP);
-		collideUnderneath = CheckForCollision(Directions.DIRECTION_DOWN);
-		collideBehind = CheckForCollision(Directions.DIRECTION_BACK);
-	}
-	
-	
 	
 	void Start()
 	{
-		detectionFilter = initialDetectionFilter;
+		
 	}
 	
 	void FixedUpdate()
 	{
 		Cleanup();
-		CheckAllCollisions();
-		switch(myMode)
-		{
-			case BaddieMode.MODE_PATROL:
-			Move (baddieFacingRight);
-			break;
-		}
-		
 	}
 	
 	void Cleanup()
 	{
 		if (this.transform.position.y < verticalThreshold)
 		{
-			Debug.Log (baddieName + " fell off the world and was destroyed!");
+			Debug.Log (myName + " fell off the world and was destroyed!");
 			Die ();
 		}
 	}
@@ -90,74 +54,6 @@ public class Baddie : MonoBehaviour {
 		Die ();
 	}
 	
-	bool CheckForCollision(Directions directionToCheck)
-	{
-		// Set up a default value
-		Vector2 direction2D = this.transform.position;
-		
-		// Assign value based on argument
-		switch(directionToCheck){
-		case Directions.DIRECTION_UP:
-		direction2D = Vector2.up;
-		break;
-		
-		case Directions.DIRECTION_FORWARD:
-		direction2D = Vector2.right;
-		break;
-		
-		case Directions.DIRECTION_DOWN:
-		direction2D = -Vector2.up;
-		break;
-		
-		case Directions.DIRECTION_BACK:
-		direction2D = -Vector2.right;
-		break;
-		}
-		
-		// Establish a scale for the raycasting the adjusts with velocity.
-		float horizontalDistance = this.rigidbody2D.velocity.x;
-		float verticalDistance = this.rigidbody2D.velocity.y;
-		
-		// Set up a useful default value for the RaycastHit2D variable based on vertical distance.
-		RaycastHit2D hitInformation2D = Physics2D.Raycast(transform.position, direction2D, verticalDistance * sensitivity, layersToCollideWith);
-		
-		// Reassign IF the direction is forward or backwards (or forwards & down) instead.
-		if (directionToCheck == Directions.DIRECTION_FORWARD
-		|| directionToCheck == Directions.DIRECTION_BACK)
-		{// the variable     =   the raycast of this position, the direction we're looking in, at a distance of the speed by the sensitivity, only checking the layers in the list.
-			hitInformation2D = Physics2D.Raycast(transform.position, direction2D, horizontalDistance * sensitivity, layersToCollideWith);
-		}		
-		
-		// If we get a result
-		if(hitInformation2D.collider != null)
-		{
-			// AND if the detection filter is greater than zero
-			if (detectionFilter > 0)
-			{
-				// Decrement the filter and return No Dice
-				detectionFilter--;
-				return false;
-			} else {
-				// Reset the filter
-				detectionFilter = initialDetectionFilter;
-				
-				// Report a hit
-				Debug.Log (baddieName + " hit " + layersToCollideWith.ToString());
-				return true;
-			}
-		}
-		
-		return false;
-		
-	}
-	
-	void Flip()
-	{
-		Vector3 thisScale = this.transform.localScale;
-		thisScale.x *= -1;
-		this.transform.localScale = thisScale;
-	}
-	
 	void Move(bool facingRight)
 	{
 		Vector2 directionOfMovement;
@@ -174,23 +70,7 @@ public class Baddie : MonoBehaviour {
 		} else {
 			directionOfMovement = leftVector;
 		}
-		
-		if (flipOnDetection)
-		{
-			if (collideInFront)
-			{
-				Flip();
-				baddieFacingRight = !baddieFacingRight;
-			}
-		} else {
-			if (!collideInFront && !collideUnderneath)
-			{
-				Flip();
-				baddieFacingRight = !baddieFacingRight;
-			}
-		}
 
-		
 		this.rigidbody2D.velocity = directionOfMovement * speed;
 	}
 }

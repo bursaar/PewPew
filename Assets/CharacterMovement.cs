@@ -29,34 +29,46 @@ public class CharacterMovement : MonoBehaviour {
 	public AudioClip[] jump;
 	public AudioClip[] run;
 	public AudioClip[] sneak;
-
+	public AudioClip[] firing;
+	
+	public float distanceToCheckForGround;
+	RaycastHit2D groundCheckRay;
+	Vector2 groundDirection;
+	
 	void Start () {
 	
 	inputHandler = FindObjectOfType<InputHandler>();
 	currentSpeed = normalSpeed;
-	
-	
-	
+	groundDirection.x = 0f;
+	groundDirection.y = -1f;
 	}
 	
 	void FixedUpdate () {
-	
-		isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundRadius, whatIsGround);
+		groundCheckRay = Physics2D.Raycast(this.transform.position, -Vector2.up, distanceToCheckForGround, whatIsGround);
+		
+		isGrounded = StandingOnGround();
 		
 		againstWall = Physics2D.OverlapCircle(groundCheck.position, groundRadius, whatIsWall);
-		
 	
 		float move = Input.GetAxis("Horizontal");
 		
 		rigidbody2D.velocity = new Vector2(move * currentSpeed, rigidbody2D.velocity.y);
-		
-		// Debug.Log ("Move is: " + move);
 		
 		if(!facingRight && move < 0)
 			Flip();
 		else 
 		if (facingRight && move > 0)
 			Flip ();		
+	}
+	
+	public bool StandingOnGround()
+	{
+		if (groundCheckRay.point != null)
+		{
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	void Update()
@@ -87,10 +99,9 @@ public class CharacterMovement : MonoBehaviour {
 			audio.PlayOneShot(NextClipSneak());
 			currentSpeed = walkingSpeed;
 		}
-		
 	}
 	
-	void Flip()
+	public void Flip()
 	{
 		facingRight = !facingRight;
 		Vector3 theScale = transform.localScale;
@@ -112,17 +123,17 @@ public class CharacterMovement : MonoBehaviour {
 		facingRight = pIsFacingRight;
 	}
 	
-	AudioClip NextClipJump()
+	public AudioClip NextClipJump()
 	{
-		return jump[Random.Range(0,2)];
+		return null; //jump[Random.Range(0,jump)];
 	}
 	
-	AudioClip NextClipRun()
+	public AudioClip NextClipRun()
 	{
 		if (runningAudioTimer <= 0)
 		{
 			runningAudioTimer = 60;
-			return run[Random.Range(0,3)];
+			return null; //run[Random.Range(0,run)];
 		} else {
 			runningAudioTimer--;
 		}
@@ -130,14 +141,12 @@ public class CharacterMovement : MonoBehaviour {
 		return null;
 	}
 	
-	AudioClip NextClipSneak()
-	{
-		
-		
+	public AudioClip NextClipSneak()
+	{	
 		if (sneakingAudioTimer <= 0)
 		{
 			sneakingAudioTimer = 90;
-			return sneak[Random.Range(0,5)];
+			return null; // sneak[Random.Range(0,sneak)];
 		} else {
 			sneakingAudioTimer--;
 		}

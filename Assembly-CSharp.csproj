@@ -46,10 +46,13 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\AISeeker.cs" />
      <Compile Include="Assets\Baddie.cs" />
      <Compile Include="Assets\Bullet.cs" />
      <Compile Include="Assets\CameraController.cs" />
+     <Compile Include="Assets\Character.cs" />
      <Compile Include="Assets\CharacterMovement.cs" />
+     <Compile Include="Assets\FSMInterface.cs" />
      <Compile Include="Assets\InputHandler.cs" />
      <Compile Include="Assets\Player.cs" />
      <Compile Include="Assets\ProjectileManager.cs" />
